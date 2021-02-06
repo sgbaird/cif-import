@@ -1,31 +1,31 @@
 (* ::Package:: *)
 
-(* :Context: CifImport` *)
+(* ::Text:: *)
+(*Modified from:*)
+(*(* :Context: CifImport` *)*)
+(**)
+(*(* :Author: *)
+(*    Bianca Eifert and Christian Heiliger, *)
+(*    Theoretical Solid State Physics, *)
+(*    Institute for Theoretical Physics, *)
+(*    Justus Liebig University Giessen, Germany *)*)
+(**)
+(*(* :Copyright: Copyright (c) 2016 Bianca Eifert and Christian Heiliger *)*)
+(**)
+(*(* :Summary: The CifImport package contains an import function for CIF files. *)*)
+(**)
+(*(* :Discussion: *)
+(*    CifImport comes "as is", with no warranties whatsoever. Please do your own research on the CIF format.*)
+(*    In particular, read this: http://oldwww.iucr.org/iucr-top/cif/faq/#ipr*)
+(*    and this: http://www.iucr.org/__data/assets/pdf_file/0019/22618/cifguide.pdf*)
+(*    This package is distributed under the terms of the GNU General Public License (Version 3, 29 June 2007) *)*)
+(**)
+(*(* :Package Version: 1.0.0 *)*)
+(**)
+(*(* :Mathematica Version: 10.0 *)*)
 
-(* :Author: 
-    Bianca Eifert and Christian Heiliger, 
-    Theoretical Solid State Physics, 
-    Institute for Theoretical Physics, 
-    Justus Liebig University Giessen, Germany *)
 
-(* :Copyright: Copyright (c) 2016 Bianca Eifert and Christian Heiliger *)
-
-(* :Summary: The CifImport package contains an import function for CIF files. *)
-
-(* :Discussion: 
-    CifImport comes "as is", with no warranties whatsoever. Please do your own research on the CIF format.
-    In particular, read this: http://oldwww.iucr.org/iucr-top/cif/faq/#ipr
-    and this: http://www.iucr.org/__data/assets/pdf_file/0019/22618/cifguide.pdf
-    This package is distributed under the terms of the GNU General Public License (Version 3, 29 June 2007) *)
-
-(* :Package Version: 1.0.0 *)
-
-(* :Mathematica Version: 10.0 *)
-
-
-If[TrueQ[$VersionNumber<10],Print["Sorry, CifImport only works with version 10+ of the Wolfram Language."];Abort[]];
-
-
+(* ::Input::Initialization:: *)
 BeginPackage["CifImport`"];
 CifImport::usage="CifImport[file] imports a crystal structures from a CIF file, returning multiple versions of the structure as explained below. \
 (CifImport can only handle files with one structure, but files with multiple structures can easily be split with any text editor.)
@@ -43,6 +43,7 @@ so Last[CifImport[file]] will give you the most physically meaningful version of
 Begin["`Private`"];
 
 
+(* ::Input::Initialization:: *)
 (*construct lattice vectors from lengths and angles*)
 LatticeVectors[lengths_,angles_]:=
 Module[{a,b,c,\[Alpha],\[Beta],\[Gamma],veca,vecb,vecc,c2,c3},
@@ -57,6 +58,7 @@ Chop[{veca,vecb,vecc}]
 ];
 
 
+(* ::Input::Initialization:: *)
 (*find all atoms symmetrically equivalent to one specific atom*)
 SymEquiv[sym_,coord_,conf_,index_]:=
 Module[{xtemp,ytemp,ztemp,symmetries,unique,symout},
@@ -71,6 +73,7 @@ symout
 ];
 
 
+(* ::Input::Initialization:: *)
 (*find all unique atoms from the pool of symmetrical equivalents*)
 SymAllAtoms[sym_,coord_,conf_]:=
 Module[{symequiv},
@@ -80,8 +83,9 @@ DeleteDuplicates[symequiv,(Abs[#1[[1,1]]-#2[[1,1]]]<.0001&&Abs[#1[[1,2]]-#2[[1,2
 ];
 
 
+(* ::Input::Initialization:: *)
 (*read a CIF file: *)
-CifImport[file_String/;(FileExistsQ[file]&&TrueQ[FileExtension[file]=="cif"])]:=
+CifImport[file_String(*/;(FileExistsQ[file]&&TrueQ[FileExtension[file]=="cif"])*)]:=
 Module[{data,unstring,lengths,angles,lattvec,coord,coordall,confall,confnonchem,chemnonchem,conf,knowntypes,chem,
 symopstrings,splitstrings,sym,symequiv,explicitinput,fullinput,symequivnonchem,explicitinputnonchem,fullinputnonchem,coordnonchem,whichlabel,label},
 
@@ -142,5 +146,42 @@ fullinputnonchem=<|"lattice"->lattvec,"atomcoords"->coordnonchem,"atomtypes"->co
 ];
 
 
+(* ::Input::Initialization:: *)
 End[];
 EndPackage[];
+
+
+(* ::Text:: *)
+(*Code Graveyard*)
+
+
+(* ::Input:: *)
+(*(*MaterialProperties[formula_String,property_String]:=*)
+(*Module[{urlRoot,myKey,requestURI,response},*)
+(*urlRoot="https://www.materialsproject.org/rest/v2/materials/";*)
+(*myKey="ABC";*)
+(*requestURI=URLBuild[{urlRoot,formula,"vasp",property},{"API_KEY"->myKey}];*)
+(*response=URLExecute[requestURI,"rawJSON"];*)
+(*Lookup[response,"response"]\[LeftDoubleBracket]1\[RightDoubleBracket][property] (*take first response could be multiple entries*)*)
+(*];*)
+(**)
+(*MaterialProperties[formula_String]:=*)
+(*Module[{urlRoot,myKey,requestURI,response,property},*)
+(*property="";*)
+(*urlRoot="https://www.materialsproject.org/rest/v2/materials/";*)
+(*myKey="JHlWQRu5mpE4FC72";*)
+(*requestURI=URLBuild[{urlRoot,formula,"vasp",property},{"API_KEY"->myKey}];*)
+(*response=URLExecute[requestURI,"rawJSON"];*)
+(*Lookup[response,"response"]\[LeftDoubleBracket]1\[RightDoubleBracket](*take first response could be multiple entries*)*)
+(*];*)
+(**)
+(*MaterialProperties[formula_String,]:=*)
+(*Module[{urlRoot,myKey,requestURI,response,property},*)
+(*property="";*)
+(*urlRoot="https://www.materialsproject.org/rest/v2/materials/";*)
+(*myKey="JHlWQRu5mpE4FC72";*)
+(*requestURI=URLBuild[{urlRoot,formula,"vasp",property},{"API_KEY"->myKey}];*)
+(*response=URLExecute[requestURI,"rawJSON"];*)
+(*Lookup[response,"response"]\[LeftDoubleBracket]1\[RightDoubleBracket](*take first response could be multiple entries*)*)
+(*];*)
+(**)*)
